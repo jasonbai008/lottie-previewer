@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <title>Lottie 动画预览器</title>
+    <!-- 引入 dotlottie-player 组件 -->
+    <script type="module" src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            /* 设置高度为视口高度 */
+            margin: 0;
+            background-color: #f5f5f7;
+            overflow: hidden;
+            /* PC端没有滚动条 */
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            /* border-radius: 12px; */
+            /* 移除圆角以实现贯穿效果 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            height: 100vh;
+            /* 中间区域从上到下贯穿 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+            /* 确保 padding 不影响高度计算 */
+        }
+
+        /* 移动端兼容性样式 */
+        @media (max-width: 768px) {
+            body {
+                background-color: #ffffff;
+                /* 移动端移除灰色底色 */
+            }
+
+            .container {
+                width: 100%;
+                /* 移动端占满宽度 */
+                max-width: none;
+                box-shadow: none;
+                /* 移动端移除阴影 */
+                padding: 1rem;
+            }
+        }
+
+        .upload-area {
+            border: 2px dashed #007aff;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .upload-area:hover {
+            background-color: #f0f7ff;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .player-container {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fafafa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        dotlottie-player {
+            width: 100%;
+            height: 100%;
+        }
+
+        h1 {
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: #86868b;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Lottie 动画预览器</h1>
+        <p>选择或拖拽本地的 .lottie 文件进行预览</p>
+
+        <!-- 上传区域 -->
+        <div class="upload-area" onclick="document.getElementById('file-input').click()">
+            <span>点击上传 .lottie 文件</span>
+            <input type="file" id="file-input" accept=".lottie">
+        </div>
+
+        <!-- 播放器容器 -->
+        <div class="player-container">
+            <dotlottie-player id="lottie-player" autoplay loop speed="1" style="display: none;">
+            </dotlottie-player>
+            <div id="placeholder" style="color: #ccc;">未选择文件</div>
+        </div>
+    </div>
+
+    <script>
+        // 获取 DOM 元素
+        const fileInput = document.getElementById('file-input');
+        const player = document.getElementById('lottie-player');
+        const placeholder = document.getElementById('placeholder');
+
+        /**
+         * 加载 Lottie 动画
+         * @param {string} url - 动画文件的 URL
+         */
+        function loadLottie(url) {
+            // 显示播放器，隐藏占位提示
+            player.style.display = 'block';
+            placeholder.style.display = 'none';
+
+            // 设置 dotlottie-player 的 src 属性
+            player.setAttribute('src', url);
+
+            // 尝试强制调用 load 方法（如果存在）
+            if (typeof player.load === 'function') {
+                player.load(url);
+            }
+        }
+
+        /**
+         * 处理文件上传逻辑
+         * 通过 URL.createObjectURL 将本地文件转换为可访问的 URL
+         */
+        fileInput.addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                // 创建 Blob URL
+                // 技巧：在 URL 后面加上 #.lottie，帮助插件识别文件类型
+                const url = URL.createObjectURL(file) + '#.lottie';
+                loadLottie(url);
+                console.log('文件已加载:', file.name, 'URL:', url);
+            }
+        });
+
+        // 页面载入时默认加载同目录下的 hello.lottie
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLottie('hello.lottie');
+        });
+
+        // 监听播放器错误
+        player.addEventListener('error', (e) => {
+            console.error('Lottie 播放器错误:', e);
+            alert('加载动画失败，请确保文件是有效的 .lottie 格式');
+        });
+
+        // 监听播放器加载完成
+        player.addEventListener('ready', () => {
+            console.log('Lottie 播放器准备就绪');
+        });
+
+        // 简单的拖拽支持
+        const uploadArea = document.querySelector('.upload-area');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#f0f7ff';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = 'transparent';
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.lottie')) {
+                fileInput.files = e.dataTransfer.files;
+                fileInput.dispatchEvent(new Event('change'));
+            } else {
+                alert('请上传 .lottie 格式的文件');
+            }
+        });
+    </script>
+</body>
+
+</html>
