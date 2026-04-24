@@ -11,20 +11,35 @@
 
 ## 🚀 如何使用 Lottie 文件
 
-在该工具中使用 Lottie 文件非常简单，主要有以下几种方式：
+使用 `.lottie` 文件非常简单，只需在 HTML 中通过 `@dotlottie/player-component` 引入：
 
-### 1. 点击上传
-1. 打开 `index.html`。
-2. 点击界面中央的虚线框区域（“点击上传 .lottie 文件”）。
-3. 在文件选择器中选中你的 `.lottie` 动画文件。
-4. 播放器将自动加载并开始播放动画。
+### 1. 引入播放器脚本
 
-### 2. 拖拽预览
-1. 将本地的 `.lottie` 文件直接拖拽到页面的上传区域。
-2. 释放鼠标，动画会立即替换当前的预览内容。
+```html
+<!-- 引入官方 dotlottie-player 组件 -->
+<script type="module" src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs"></script>
+```
 
-### 3. 默认加载
-- 页面初始化时，会自动尝试加载同目录下的 `hello.lottie` 文件。如果你有固定的演示文件，可以将其命名为 `hello.lottie` 放在项目根目录。
+### 2. 基础使用
+
+```html
+<!-- 自动播放、循环播放 -->
+<dotlottie-player
+    src="hello.lottie"
+    background="transparent"
+    speed="1"
+    style="width: 300px; height: 300px;"
+    loop
+    autoplay>
+</dotlottie-player>
+```
+
+### 3. 参数说明
+
+- **src**: `.lottie` 文件路径。
+- **autoplay**: 是否自动播放。
+- **loop**: 是否循环播放。
+- **speed**: 播放速度。
 
 ## 🛠️ 技术细节
 
